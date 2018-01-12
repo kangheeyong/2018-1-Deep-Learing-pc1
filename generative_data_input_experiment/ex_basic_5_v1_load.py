@@ -24,7 +24,7 @@ if not os.path.isdir(file_name) :
 
     
 sess = tf.InteractiveSession()
-
+    
 new_saver = tf.train.import_meta_graph(file_name + '/para.cktp.meta')
 new_saver.restore(sess, tf.train.latest_checkpoint(file_name + '/'))
     

@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 import os
 import sys
-os.environ["CUDA_VISIBLE_DEVICES"]="0"
+os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
 
    
@@ -54,7 +54,7 @@ def simple_cnn(x) :
          # 1st layer
         w2 = tf.get_variable('w2',[fc1.get_shape()[1],10],initializer = w_init)
         b2 = tf.get_variable('b2',[10],initializer = b_init)
-        fc2 = tf.nn.softmax(tf.matmul(fc1,w2)+b2)
+        fc2 = tf.nn.sigmoid(tf.matmul(fc1,w2)+b2)
 
         return fc2
 
@@ -63,8 +63,8 @@ u = tf.placeholder(tf.float32, shape = (None, 28,28,1),name='u')
 t = tf.placeholder(tf.float32, shape = (None, 10), name='t')
 y = simple_cnn(u)
 
-loss = tf.reduce_mean(-t*tf.log(y + 1e-8),name='loss')
-optim = tf.train.AdamOptimizer(0.0001).minimize(loss,name='optim')
+loss = tf.reduce_mean(-0.5*(t*tf.log(y + 1e-8)+(1-t)*tf.log(1-y+1e-8)),name='loss')
+optim = tf.train.AdamOptimizer(0.00001).minimize(loss,name='optim')
     
 correct_prediction = tf.equal(tf.argmax(y,1),tf.argmax(t,1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32),name = 'accuracy')
