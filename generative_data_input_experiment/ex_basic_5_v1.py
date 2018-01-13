@@ -7,6 +7,10 @@ import my_lib
 import time 
 
 os.environ["CUDA_VISIBLE_DEVICES"]="1"
+'''
+conditional GANs 
+'''
+
 
 
 

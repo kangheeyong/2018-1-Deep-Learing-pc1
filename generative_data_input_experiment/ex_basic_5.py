@@ -7,7 +7,9 @@ import my_lib
 import time 
 
 os.environ["CUDA_VISIBLE_DEVICES"]="0"
-
+'''
+banilla GANs 
+'''
 
 
 start = time.time()

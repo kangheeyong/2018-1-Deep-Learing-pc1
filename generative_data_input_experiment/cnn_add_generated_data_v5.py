@@ -126,14 +126,16 @@ np.random.seed(int(time.time()))
 log_txt = open(file_name +'/log.txt','w')
 
 
-for i in range(500000) :
+for i in range(1000000) :
 
   
     cnn_img, cnn_label = mnist.train.next_batch(50)
     cnn_img = np.reshape(cnn_img,(-1,28,28,1))
     cnn_label = np.reshape(cnn_label,(-1,10))
 
-    cnn_z = np.round(np.random.normal(0,1,size=(50,1,1,100)),1)
+    cnn_z = np.round(np.random.normal(0,1,size=(50,1,1,10)),1)
+    temp = np.zeros((50,1,1,90))
+    cnn_z = np.concatenate([cnn_z,temp],3)
     cnn_temp = np.random.randint(0,9,(50,1))
     cnn_z_c = one_hot[cnn_temp].reshape([-1,1,1,10])
      

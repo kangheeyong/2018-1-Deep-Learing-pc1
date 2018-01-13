@@ -98,8 +98,8 @@ cnn_u = tf.placeholder(tf.float32, shape = (None, 28,28,1),name='cnn_u')
 cnn_t = tf.placeholder(tf.float32, shape = (None, 10), name='cnn_t')
 cnn_y = simple_cnn(cnn_u)
 
-cnn_loss = tf.reduce_mean(-0.5*(cnn_t*tf.log(cnn_y + 1e-8)+(1-cnn_t)*tf.log(1-cnn_y+1e-8)),name='cnn_loss')
-cnn_optim = tf.train.AdamOptimizer(0.00001).minimize(cnn_loss,name='cnn_optim')
+cnn_loss = tf.reduce_mean(-0.5*(cnn_t*tf.log(cnn_y + 1e-8)+ (1-cnn_t)*tf.log(1-cnn_y+1e-8)),name='cnn_loss')
+cnn_optim = tf.train.AdamOptimizer(0.0001).minimize(cnn_loss,name='cnn_optim')
     
 cnn_correct_prediction = tf.equal(tf.argmax(cnn_y,1),tf.argmax(cnn_t,1))
 cnn_accuracy = tf.reduce_mean(tf.cast(cnn_correct_prediction, tf.float32),name = 'cnn_accuracy')
@@ -126,7 +126,7 @@ np.random.seed(int(time.time()))
 log_txt = open(file_name +'/log.txt','w')
 
 
-for i in range(500000) :
+for i in range(1000000) :
 
   
     cnn_img, cnn_label = mnist.train.next_batch(50)

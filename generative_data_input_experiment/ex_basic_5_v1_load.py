@@ -9,6 +9,11 @@ import time
 os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
 
+'''
+read network defined by ex_basic_5 and training again
+'''
+
+
 
 start = time.time()
 

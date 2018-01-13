@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 import os
 import sys
-os.environ["CUDA_VISIBLE_DEVICES"]="1"
+os.environ["CUDA_VISIBLE_DEVICES"]="2"
 
 
    
