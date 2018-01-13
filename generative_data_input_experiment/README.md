@@ -19,7 +19,7 @@ GANs으로 생성된 데이터는 일반적으로 학습에 사용된 데이터�
 ### 1. basic ConvNN(normal_cnn_v1)와 Conditional GANs으로 추가한 ConvNN(cnn_add_generated_data_v1) 결과 비교
 ####
 실험 방법은 conditional GANs(ex_basic5_v1.py)으로 미리 학습을 한 다음, basic ConvNN(normal_cnn_v1)는 오직 MNIST data set을 사용하고 Conditional GANs으로 추가한 ConvNN(cnn_add_generated_data_v1) 경우 반반 섞어서 학습을 했다.(자세한 내용은 코드 참조) 이 실험의 목적은 같은 네트워크 구조를 사용했을 경우 데이터에 따라서 성능이 어떻게 달라지는 확인하는 것이다. 따라서 네트워크 정의는 임의로 했다.
-![normal cnn] (/graph_image/normal_cnn_v1_result.jpg)  
+ ![normal cnn] (/graph_image/normal_cnn_v1_result.jpg)  
  ![normal cnn adding ganerative data v1](/graph_image/normal_cnn_add_generated_datav1_result.jpg)
 위 결과를 보면 normal ConvNN을 경우 특정값으로 수렴하는 것으로 보이지만 GANs으로 생성된 데이터와 같이 사용한 경우 정확도의 최대값은 높아 지지만 매우 불안정한 것을 볼 수 있다.
 * 실험 결과 분석 : GANs으로 생성된 데이터를 이용할 경우 최대 정확도는 올라가지만 진동이 심하여 정확도가 불안정 하다.  
