@@ -6,8 +6,7 @@
 ~/jeiger/user2/ex_my_cuda/Graph_structure_basic_v2/resNet_v5/*
 
 *.o
-*.jpg
 *.cktp.*
 *.png
 *.pickle.gzip
-
+*.txt
