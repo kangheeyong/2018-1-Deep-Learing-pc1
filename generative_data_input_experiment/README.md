@@ -22,6 +22,7 @@ GANs으로 생성된 데이터는 일반적으로 학습에 사용된 데이터�
 
  ![normal cnn](./graph_image/normal_cnn_v1_result.jpg)  
  ![normal cnn adding ganerative data v1](./graph_image/normal_cnn_add_generated_datav1_result.jpg)
+
 위 결과를 보면 normal ConvNN을 경우 특정값으로 수렴하는 것으로 보이지만 GANs으로 생성된 데이터와 같이 사용한 경우 정확도의 최대값은 높아 지지만 매우 불안정한 것을 볼 수 있다.
 * 실험 결과 분석 : GANs으로 생성된 데이터를 이용할 경우 최대 정확도는 올라가지만 진동이 심하여 정확도가 불안정 하다.  
 * 불안정한 원인 분석 : 두 네트워크의 차이점은 input data의 수라고 생각한다. normal ConvNN의 경우 input data가 60K개 이다. 하지만 GANs르 생성된 데이터는 100차원 데이터가 각각 평균 0과 분산 1로 이루어진 정규분포를 따르는 값을 입력 데이터로 한다. 따라서 생성될 수 있는 데이터의 조합은 한 차원당 약 10K의 경우의 수가 생긴다고 한다면 나올 수 있는 조합은 약 10K^100^개이다. 즉, GANs으로 생성된 데이터를 추가해서 학습하는 경우 input data의 수는 약 60K + 10K^100^(약 10^400^)개이다.
@@ -30,9 +31,27 @@ GANs으로 생성된 데이터는 일반적으로 학습에 사용된 데이터�
 #
 ### 2. GANs으로 생성된 데이터의 경우의 수를 줄인 실험 결과 실험1 (cnn_add_generated_data_v2,cnn_add_generated_data_v3)   
 cnn_add_generated_data_v2 프로그램에서 돌린 실험은 소수 둘째 자리에서 반올림한 값을 입력으로 했고, cnn_add_generated_data_v3 프로그램에서 돌린 실험은 소수 첫째 자리에서 반올림한 값을 입력으로 했다. 위의 실험에서는 weight update를  500K번 했지만 이번에는 1,000K번으로 2배 늘려서 실험을 했다.
+
  ![normal cnn adding ganerative data v2](./graph_image/normal_cnn_add_generated_datav2_result.jpg)
  ![normal cnn adding ganerative data v3](./graph_image/normal_cnn_add_generated_datav3_result.jpg)
-위의 결과를 분석해보면 각 차원당 N(0,1)을 따르는 정규분포를 따르고 첫째 자리와 둘째 자리를 반올림 했다면 한차원 당 값의 범위는 각각 약 -2.0 ~ 2.0와 -2.00 ~ 2.00으로 생각할 수 있다. 즉, 각 차원 당 값의 경우의 수는 각각 40개와 400개이다. 다시 전체 경우의 수로 바꿔보면 40^100^은 약 10^160^이 되고, 400^100^은 약 10^260^이 된다. 여전히 큰 숫자 였다. 하지만 1번 실험에서의 문제의 원인을 데이터의 수가 많기 때문에, 수렴을 안한다고 했었지만 이 실험을 통해서는 확인할 수가 없다. 왜냐하면 데이터가 많아서 수렴을 안한다는 말은 다르게 생각해보면 어느정도 데이터만 있으면 수렴을 한다고 생각할 수 있기 때문이다. 다음 실험은 입력데이터의 차원수를 줄여서 출력값의 경우의 줄여서 실험을 해봐야 겠다.
+
+위의 결과를 분석해보면 각 차원당 N(0,1)을 따르는 정규분포를 따르고 둘째 자리와 셋째 자리를 반올림 했다면 한차원 당 값의 범위는 각각 약 -2.0 ~ 2.0와 -2.00 ~ 2.00으로 생각할 수 있다. 즉, 각 차원 당 값의 경우의 수는 각각 40개와 400개이다. 다시 전체 경우의 수로 바꿔보면 40^100^은 약 10^160^이 되고, 400^100^은 약 10^260^이 된다. 여전히 큰 숫자 였다. 하지만 1번 실험에서의 문제의 원인을 데이터의 수가 많기 때문에, 수렴을 안한다고 했었지만 이 실험을 통해서는 확인할 수가 없다. 왜냐하면 데이터가 많아서 수렴을 안한다는 말은 다르게 생각해보면 어느정도 데이터만 있으면 수렴을 한다고 생각할 수 있기 때문이다. 다음 실험은 입력데이터의 차원수를 줄여서 출력값의 경우의 줄여서 실험을 해봐야 겠다.
 
 #
 ### 3. GANs으로 생성된 데이터의 경우의 수를 줄인 실험 결과 실험2 (cnn_add_generated_data_v4,cnn_add_generated_data_v5)
+cnn_add_generated_data_v4와 cnn_add_generated_data_v5 실험은 각 차원을 둘째 자리에서 반올림 하고 5개,10개의 차원만 사용하고 나어지는 0으로 해서 입력으로 사용 했다. 따라서 각각의 출력값의 경우의 수는 40^5^(약 10^8^)개와 40^10^(약10^16^)개이다.
+
+ ![normal cnn adding ganerative data v4_5](./graph_image/normal_cnn_add_generated_datav4_5_result.jpg)
+
+위의 결과를 보면 cnn_add_generated_data_v4보다 cnn_add_generated_data_v5 더 높은 정확도에 수렴하지만 weight update 수는 더 많아야 한다.
+* 결론 : GANs으로 생성한 generative data를 추가해서 학습을 하면 분류 정확도를 높일 수 있다. 하지만 테스트 정확도가 진동을 할 수는 있는데 그 이유는 GANs으로 생성한 generative data의 경우의 수가 많기 때문에 완전히 학습을 못해서 수렴을 하지 못한걸로 생각 할 수 있다.
+* 의문점들
+    * 데이터가 어느정도 이상적으로 구성되어 있다면, 데이터 수와 정확도 사이에 관계가 있을까? 사실 log스케일과 관계가 있을거라고 생각을 한다.
+    * 네트워크 이론에서 small world, scale free network 같은게 나중에 위의 관계가 발견되지 않을까 생각한다.
+
+
+### 4. GANs으로 생성된 데이터의 경우의 수를 줄인 실험 결과 실험3과 향후 방향 (cnn_add_generated_data_v6,cnn_add_generated_data_v7)
+
+
+* 향후 방향
+    * 이 실험은 GANs으로 생성된 데이터를 추가 해서 학습하면 성능이 향상되지 않을까? 하는 굼금증을 해결하기 위해서 한 실험이였다. 여기서는 단순히 Conditional GANs을 이용해서 데이터를 생성 했지만 2017년에 나와 같은 생각을 한사람이 논문([Data Argmentation Generative Adversarial Networks(DAGANs)](https://arxiv.org/abs/1711.04340))을 발표 했다. 다음 실험은 이 논문에 대한 간단한 리뷰와 위와 같은 환경에서 Conditional GANs과 성능을 비교할 계획이다.
