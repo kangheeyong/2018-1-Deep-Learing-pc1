@@ -51,7 +51,11 @@ cnn_add_generated_data_v4와 cnn_add_generated_data_v5 실험은 각 차원을 �
 
 
 ### 4. GANs으로 생성된 데이터의 경우의 수를 줄인 실험 결과 실험3과 향후 방향 (cnn_add_generated_data_v6,cnn_add_generated_data_v7)
+cnn_add_generated_data_v6와 cnn_add_generated_data_v7 실험은 각 차원을 둘째 자리에서 반올림 하고 15개,20개의 차원만 사용하고 나어지는 0으로 해서 입력으로 사용 했다. 따라서 각각의 출력값의 경우의 수는 40^15^(약 10^24^)개와 40^20^(약10^32^)개이다.
 
+ ![normal cnn adding ganerative data v4_5](./graph_image/normal_cnn_add_generated_datav6_7_result.jpg)
+
+위의 결과를 보면 안정적으로 수렴하지 못하는 것을 볼 수 있다. 딥러닝에서 위와 같이 입력데이터를 변형시켜거 학습하는 방법을 data augmentation이라고 불린다. GANs으로 생성한 데이터를 넣으면 정확도가 향상되는 것을 알았으니 다음 연구는 이와 비슷한 연구를한 논문을 찾아서 비교해봐야 겠다.
 
 * 향후 방향
     * 이 실험은 GANs으로 생성된 데이터를 추가 해서 학습하면 성능이 향상되지 않을까? 하는 굼금증을 해결하기 위해서 한 실험이였다. 여기서는 단순히 Conditional GANs을 이용해서 데이터를 생성 했지만 2017년에 나와 같은 생각을 한사람이 논문([Data Argmentation Generative Adversarial Networks(DAGANs)](https://arxiv.org/abs/1711.04340))을 발표 했다. 다음 실험은 이 논문에 대한 간단한 리뷰와 위와 같은 환경에서 Conditional GANs과 성능을 비교할 계획이다.
