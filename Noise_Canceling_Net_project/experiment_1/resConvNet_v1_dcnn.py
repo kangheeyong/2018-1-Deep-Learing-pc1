@@ -83,7 +83,7 @@ sess.run(tf.global_variables_initializer())
 np.random.seed(int(time.time()))
 
 test_images = mnist.test.images[0:16]    
-test_origin = test_images*0.5
+test_origin = test_images*0.4
 test_input = np.minimum(test_origin  + np.random.uniform(size = (16,784)), 1.0)
 
 my_lib.mnist_4by4_save(np.reshape(test_input,(-1,784)),file_name + '/input_noise.png')

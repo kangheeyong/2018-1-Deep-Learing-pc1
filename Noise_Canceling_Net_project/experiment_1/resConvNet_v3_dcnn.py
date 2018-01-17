@@ -83,8 +83,8 @@ sess.run(tf.global_variables_initializer())
 np.random.seed(int(time.time()))
 
 test_images = mnist.test.images[0:16]    
-test_origin = test_images*0.4
-test_input = np.minimum(test_origin  + np.random.uniform(size = (16,784)), 1.0)
+test_origin = test_images*0.9
+test_input = np.minimum(test_images*0.4  + np.random.uniform(size = (16,784)), 1.0)
 
 my_lib.mnist_4by4_save(np.reshape(test_input,(-1,784)),file_name + '/input_noise.png')
 my_lib.mnist_4by4_save(np.reshape(test_origin,(-1,784)),file_name + '/ground_true.png') 
@@ -98,8 +98,8 @@ mse_error = []
 for i in range(1000000) :
     
     train_images,_ = mnist.train.next_batch(100)
-    train_origin = train_images * np.random.uniform(0.2,1.0)
-    train_input = np.minimum(train_origin + np.random.uniform(size = (100,784)), 1.0)
+    train_origin = train_images*0.9
+    train_input = np.minimum(train_images*np.random.uniform(0.2,1.0)+ np.random.uniform(size = (100,784)), 1.0)
     
     _ , content_e, mse_e = sess.run([content_optim, content_loss,mse],
             feed_dict={u : np.reshape(train_input,(-1,28,28,1)),t : np.reshape(train_origin,(-1,28,28,1)),isTrain : True})
