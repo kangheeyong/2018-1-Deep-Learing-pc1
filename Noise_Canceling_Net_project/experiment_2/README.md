@@ -69,6 +69,23 @@ resConvNet_v5_dcnn : a\*ground_true = net(a\*ground_true + b\*ref +noise, ref), 
 
  ![17](../graph_image/17.jpg)
 
+위의 실험의 차이점은 아래와 같다.
+
+>resConvNet_v1_dcgans : G loss = content loss + 0.001\*adversarial loss
+resConvNet_v2_dcgans : G loss = 0.9\*content loss + 0.1\*adversarial loss
+resConvNet_v3_dcgans : G loss = content loss + adversarial loss
+
+Data Augmentation
+
+* a\*ground_true = Generator_net(a\*ground_true + b\*ref +noise, ref)
+
+GANs update 방법
+
+* Discriminator update( data[ i ] )
+* Generator update( data[ j ] ), i,j는 임의의 수
+
+위의 결과 이미지를 보면 알 수 있는건 adversarial loss 비율이 낮아야 원하는 결과가 나왔다. [SRGANs](https://arxiv.org/abs/1609.04802)과 [SEGANs](https://arxiv.org/abs/1703.09452) 논문의 결과가 의심스러워 졌다. 혹시 GANs updata 방식에 문제가 있을 수도 있으니 다른 실험을 더 해보았다.
+
 #### 3.8 resConvNet_v4_dcgans 결과
 
  ![18](../graph_image/18.jpg)
@@ -82,11 +99,118 @@ resConvNet_v5_dcnn : a\*ground_true = net(a\*ground_true + b\*ref +noise, ref), 
 
  ![20](../graph_image/20.jpg)
 
+ >resConvNet_v4_dcgans : G loss = content loss + 0.001\*adversarial loss
+ resConvNet_v5_dcgans : G loss = 0.9\*content loss + 0.1\*adversarial loss
+ resConvNet_v6_dcgans : G loss = content loss + adversarial loss
 
-#### 3.11 resConvNet_v7_dcgans 결과
+ Data Augmentation
+
+ * a\*ground_true = Generator_net(a\*ground_true + b\*ref +noise, ref)
+
+ GANs update 방법
+
+ * Discriminator update( data[ i ] )
+ * Generator update( data[ i ] ), i는 임의의 수
+
+앞서한 실험과 차이점은 GANs update 방법이다. 먼저 한것은 Discriminator update에 사용한 data와 Generator update에 사용한 data를 다르게 했었다. 따라서 이번에는 Discriminator update에 사용한 data와 Generator update에 사용한 data를 같게 했었다. 하지만 위의 실험 결과에서도 adversarial loss 비율이 낮아야 원하는 결과가 나왔다.  
 
  ![21](../graph_image/21.jpg)
 
+학습이 잘 안되는 한가지 원인은 학습이 시작되기전 첫번째 출력값이 ref 값과 비슷했다.(위의 그림 참조) 비슷하게 나온 이유는 skip connect를 사용해서 그렇다. 마지막 레이어를 거치기 전에 입력값과 ref 값이 모두 더해지기 때문에 학습이 되기전에는 출력값이 ref값과 거의 비슷하게 나오고 학습이 진행되면서 ref값도 무작위로 돌다보면 ground true값이 되기도 해서 Discriminator가 진짜로 인식해서 이렇게 동작하는것 같다.
+
+위의 결과를 보고 SRGANs과 SEGANs와 Generator net 구조가 달라서 비교하는 것은 틀린 판단인것 같다. 하지만 GANs의 구조로 학습하는 경우가 사용하지 않는 경우보다 성능이 항상 좋게 나오는게 아니라는 결론을 내리는건 괜찮은 판단인것 같다.   
+
+
+
+
+
+#### 3.11 resConvNet_v7_dcgans 결과
+
+
+ ![22](../graph_image/22.jpg)
+
+>resConvNet_v7_dcgans : G loss = content loss + 0.001\*adversarial loss
+
+Data Augmentation
+
+* a\*ground_true = Generator_net(a\*ground_true + b\*ref +noise, ref)
+
+update 방법
+1. pre-training : loss = content loss(L1), 200,000 update
+2. GANs update
+    * Discriminator update( data[ i ] )
+    * Generator update( data[ i ] ), i는 임의의 수
+
+ ![23](../graph_image/23.jpg)
+
+이번 실험은 pre-training을 한 후 cGANs으로 학습을 한 결과이다. 위의 결과를 보면 둘의 결과는 큰 차이가 없는것을 볼 수 있다.
+
+#### 3.12 resConvNet_v1_conditional_dcgans 결과
+
+ ![24](../graph_image/24.jpg)
+
+#### 3.13 resConvNet_v2_conditional_dcgans 결과
+
+ ![25](../graph_image/25.jpg)
+
+#### 3.14 resConvNet_v3_conditional_dcgans 결과
+
+ ![26](../graph_image/26.jpg)
+
+ >resConvNet_v1_conditional_dcgans : G loss = content loss + adversarial loss
+ resConvNet_v2_conditional_dcgans : G loss = content loss + 0.001\*adversarial loss
+ resConvNet_v3_conditional_dcgans : G loss = adversarial loss
+
+ Data Augmentation
+
+ * a\*ground_true = Generator_net(a\*ground_true + b\*ref +noise, ref)
+
+ GANs update 방법
+
+ * Discriminator update( data[ i ] )
+ * Generator update( data[ i ] ), i는 임의의 수
+
+ 위의 결과를 보면 conditional GANs을 쓸 경우 content loss(L1)를 안 쓰는 경우가 더 괜찮을 결과를 볼 수 있었다.
+
+#### 3.15 resConvNet_v4_conditional_dcgans 결과
+
+ ![27](../graph_image/27.jpg)
+
+ >resConvNet_v4_conditional_dcgans : G loss = adversarial loss
+
+ Data Augmentation
+
+ * a\*ground_true = Generator_net(a\*ground_true + b\*ref +noise, ref)
+
+ GANs update 방법
+
+ * Discriminator update( data[ i ] )
+ * Generator update( data[ j ] ), i,j는 임의의 수
+
+resConvNet_v4_conditional_dcgans 실험은 resConvNet_v3_conditional_dcgans 실험해서 GANs update 방법을 다르게 했다. 이전에는 DDiscriminator update와 Generator update data를 같게 했다면 이번에는 다르게 했다.
+
+#### 3.16 resConvNet_v5_conditional_dcgans 결과
+
+ ![28](../graph_image/28.jpg)
+
+>resConvNet_v5_conditional_dcgans
+     * G loss = content loss + adversarial loss, until 200,000 update
+     * G loss = 100\*content loss + adversarial loss, after 200,000 update
+
+ Data Augmentation
+
+ * a\*ground_true = Generator_net(a\*ground_true + b\*ref +noise, ref)
+
+ GANs update 방법
+
+ * Discriminator update( data[ i ] )
+ * Generator update( data[ i ] ), i는 임의의 수
+
+[SEGANs](https://arxiv.org/abs/1703.09452) 논문에서는 처음에 content loss의 비율을 1로 했다가 어느 정도 학습이 되면 그 비율을 100으로 바꿨다.
 
 
 ### 4. 결론
+
+1. GANs을 사용해서 하면 기존보다 더 좋아진다라고 생각한 이유는 [Image-to-Image Translation with Conditional Adversarial Networks](https://arxiv.org/abs/1611.07004) 논문 때문이다. 이 논문을 훓어보면 GANs을 사용하면 더 좋아지는것 처럼 보인다. 그리고 이 논문을 읽었을 당시 대충 훓어보기만 했기 때문에 이런 선입견이 생긴것 같다. 조만간 이 논문을 자세히 읽어보고 실험을 해봐서 GANs을 사용했을 때 기대할 수 있는 성능이 무엇인지 분석해봐야 겠다.
+
+2. 생성 모델로써의 GANs으로 쓴게 아니라 위와 같이 기존 모델에서 정확도를 높이기 위해서 GANs을 쓰는 것은 위의 실험에서 어느하나 기존보다 좋은 결봐를 보여주지 못했다. 따라서 앞으로 하는 프로젝트에서는 GANs을 사용하지 말고 기존의 방식으로 학습을 해야겠다. GANs을 사용하지 않아서 생기는 장점은 Discriminator net에 사용되는 parameter가 없기 때문에 더 깊은 네트워크를 사용할 수 있을것이다.(그래픽카드 메모리가 한정됬기 때문이다.)   

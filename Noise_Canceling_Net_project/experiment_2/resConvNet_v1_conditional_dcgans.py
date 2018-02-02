@@ -156,7 +156,7 @@ content_errpr=[]
 
 
 log_txt = open(file_name +'/log.txt','w')
-for i in range(1000000) :
+for i in range(500000) :
     train_images,_ = mnist.train.next_batch(100)
     train_origin = train_images * np.random.uniform(0.2,1.0)
     train_ref,_ = mnist.train.next_batch(100)
