@@ -13,7 +13,7 @@ int main(int argc, char** argv)
     }
 
     FILE *fd;
-    
+    FILE *fd1;
 
     fd = fopen(argv[1],"r");
     if (fd == NULL)
@@ -21,37 +21,64 @@ int main(int argc, char** argv)
         printf("file read fail\n");
         return 0;
     }
- 
-    
-    char buff[4096];
-    int n_size;
-    
-    /*
-    fgets( buff, sizeof(buff), fd );
-    printf( "%s", buff );
-
-
-*/
-    int cnt = 0;
-    while( 0 < (n_size = fread( buff, sizeof(unsigned char), 1, fd)))
+    else
     {
-        if(buff[0] == '\n')
+
+        fd1 = fopen(strtok(argv[1],"."),"wb");
+
+        if (fd1 == NULL)
         {
-            cnt++;
-            if(cnt == 3) break;
+            printf("file1 load fail\n");
+            return 0;
         }
+ 
+        unsigned int size = 1024*1024*10; // 약 10Mbyte
+        char *buff = new char[size];
+        int n_size;
+
+        /*
+           fgets( buff, sizeof(buff), fd );
+           printf( "%s", buff );
+        */
+        
+        int cnt = 0;
+        while( 0 < (n_size = fread( buff, sizeof(unsigned char), 1, fd)))
+        {
+            if(buff[0] == '\n')
+            {
+                cnt++;
+                if(cnt == 3) break;
+            }
+        }
+
+        //printf("%d\n",cnt);
+
+        //fscanf( fd, "%s\n", buff);
+        //printf( "%s",buff);
+        int temp;
+        while(fgets( buff, size, fd ))
+        {
+            //printf( "%s", buff );
+            cnt = 0;
+            char *token = strtok(buff, ",");
+            token = strtok(NULL, ",");
+            do
+            {
+                temp = atoi(token);
+                fwrite( &temp, sizeof(int), 1, fd1);
+                //fprintf(fd1,"%d", atoi(token));
+                cnt++;
+                if(cnt == 3648) break;
+            }
+            while (token = strtok(NULL, ","));
+       //     fprintf(fd1,"\n");
+         
+        }
+
+        delete buff;
+        fclose(fd);
+        fclose(fd1);
     }
-
-    printf("%d\n",cnt);
-
-    fgets( buff, sizeof(buff), fd );
-    printf( "%s", buff );
-
-
-    
-    fclose(fd);
-
-
 
 
     return 0;

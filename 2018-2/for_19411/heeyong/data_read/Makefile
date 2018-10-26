@@ -1,7 +1,7 @@
 
 FLAGS = -o
 TARGET = test
-OBJECTS = main.o
+OBJECTS = read.o
 
 $(TARGET) : $(OBJECTS)
 				$(CXX) $(FLAGS) $(TARGET) $(OBJECTS) `pkg-config --libs opencv`
