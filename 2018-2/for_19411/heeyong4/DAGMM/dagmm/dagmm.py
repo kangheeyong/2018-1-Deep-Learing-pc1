@@ -153,7 +153,8 @@ class DAGMM:
 
                 if (epoch + 1) % 100 == 0:
                     loss_val = self.sess.run(loss, feed_dict={input:x, drop:0})
-                    print(f" epoch {epoch+1}/{self.epoch_size} : loss = {loss_val:.3f}")
+                    #print(" epoch {epoch+1}/{self.epoch_size} : loss = {loss_val:.3f}")
+                    print(" epoch %d/%d : loss = %.3f"%(epoch + 1, self.epoch_size, loss_val))
 
             # Fix GMM parameter
             fix = self.gmm.fix_op()
