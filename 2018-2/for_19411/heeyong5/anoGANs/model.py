@@ -14,7 +14,7 @@ def Cross_Entropy(t,y,name) :
 class BE_infoGANs_v2 : 
     
     def __init__(self,sess, path, data, GANs_epoch = 100,E_epoch = 30, batch_size = 100, z_size = 100, lam = 0.01, gamma = 0.7, k_curr = 0.0,
-                G_lr = 2e-4, G_beta1 = 0.5, E_lr = 2e-4, E_beta1 = 0.1, D_lr = 2e-5, D_beta1 = 0.5) :
+                G_lr = 2e-4, G_beta1 = 0.5, E_lr = 2e-4, E_beta1 = 0.1, D_lr = 2e-5, D_beta1 = 0.5, c_size = 10) :
         
         self.sess = sess
         self.GANs_epoch = GANs_epoch
@@ -32,6 +32,7 @@ class BE_infoGANs_v2 :
         self.D_beta1 = D_beta1
         self.path = path
         self.data = data
+        self.c_size = c_size
         if not os.path.isdir(path) :
             os.mkdir(path)
             
@@ -43,16 +44,16 @@ class BE_infoGANs_v2 :
         
 
         self.z = tf.placeholder(tf.float32,shape=(None,1,1,self.z_size),name = 'z')    
-        self.c = tf.placeholder(tf.float32,shape=(None,1,1,10),name = 'c')   
+        self.c = tf.placeholder(tf.float32,shape=(None,1,1,self.c_size),name = 'c')   
         self.u = tf.placeholder(tf.float32, shape = (None, 64,64,1),name='u')     
         self.k = tf.placeholder(tf.float32, name = 'k')
         self.isTrain = tf.placeholder(dtype=tf.bool,name='isTrain')  
 
         self.G_z = G(self.z, self.c, self.isTrain, name='G_z') 
-        self.E_u,  self.E_u_c = E(self.u, self.isTrain,name = 'E_u') 
+        self.E_u,  self.E_u_c = E(self.u, self.isTrain,name = 'E_u', c_size = self.c_size) 
 
         self.re_image = G(self.E_u, self.E_u_c, self.isTrain, reuse=True, name ='re_image')
-        self.re_z, self.re_z_c = E(self.G_z, self.isTrain, reuse=True, name ='re_z')
+        self.re_z, self.re_z_c = E(self.G_z, self.isTrain, reuse=True, name ='re_z',c_size = self.c_size)
 
         self.re_z_loss = MSE(self.re_z , self.z, name = 're_z_loss') 
         self.re_z_c_loss = Cross_Entropy(self.c, self.re_z_c, name = 're_z_c_loss')
@@ -63,7 +64,7 @@ class BE_infoGANs_v2 :
         self.D_enc = D_enc(self.u, self.isTrain, name = 'D_enc')
         self.D_real = D_dec(self.D_enc, self.isTrain, name = 'D_real')                       
         self.D_fake = D_dec(D_enc(self.G_z, self.isTrain,reuse=True), self.isTrain, reuse=True, name = 'D_fake')         
-        self.Q_fake = Q_cat(D_enc(self.G_z, self.isTrain,reuse=True), name='Q_fake')
+        self.Q_fake = Q_cat(D_enc(self.G_z, self.isTrain,reuse=True), name='Q_fake', c_size = self.c_size)
 
 
         self.D_real_loss = MSE(self.D_real, self.u, name = 'D_real_loss')             
@@ -90,8 +91,8 @@ class BE_infoGANs_v2 :
         tf.set_random_seed(int(time.time()))
         self.sess.run(tf.global_variables_initializer())
 
-        one_hot = np.eye(10)
-        test_c = one_hot[np.array([1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4])].reshape([-1,1,1,10])
+        one_hot = np.eye(self.c_size)
+        test_c = one_hot[np.array([1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4])].reshape([-1,1,1,self.c_size])
         test_z = np.random.uniform(-1,1,size=(16,1,1,self.z_size))
         mnist_4by4_save(np.reshape(self.data.test_normal_data[0:16],(-1,64,64,1)),self.path + '/GANs_result/normal.png')    
         mnist_4by4_save(np.reshape(self.data.test_anomalous_data[0:16],(-1,64,64,1)),self.path + '/GANs_result/anomalous.png')    
@@ -116,7 +117,7 @@ class BE_infoGANs_v2 :
                 train_images = self.data.train_normal_data[iteration*self.batch_size : (iteration+1)*self.batch_size]      
                 u_ = np.reshape(train_images,(-1,64,64,1)) 
                 z_ = np.random.uniform(-1,1,size=(self.batch_size,1,1,self.z_size))                                                                                               
-                c_ = one_hot[np.random.randint(0,10,(self.batch_size))].reshape([-1,1,1,10])
+                c_ = one_hot[np.random.randint(0,self.c_size,(self.batch_size))].reshape([-1,1,1,self.c_size])
 
                 _ , D_e, D_real_e, D_fake_e = self.sess.run([self.D_optim, self.D_loss, self.D_real_loss, self.D_fake_loss],
                                                      {self.u : u_, self.z : z_, self.c : c_, self.k : self.k_curr, self.isTrain : True})
@@ -175,9 +176,9 @@ class BE_infoGANs_v2 :
         
     def E_fit(self) : 
 
-        one_hot = np.eye(10)
+        one_hot = np.eye(self.c_size)
 
-        test_c = one_hot[np.array([1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4])].reshape([-1,1,1,10])
+        test_c = one_hot[np.array([1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4])].reshape([-1,1,1,self.c_size])
         test_z = np.random.uniform(-1,1,size=(16,1,1,self.z_size))
         mnist_4by4_save(np.reshape(self.data.test_normal_data[0:16],(-1,64,64,1)),self.path + '/E_result/normal.png')    
         mnist_4by4_save(np.reshape(self.data.test_anomalous_data[0:16],(-1,64,64,1)),self.path + '/E_result/anomalous.png')    
@@ -197,7 +198,7 @@ class BE_infoGANs_v2 :
                 train_images = self.data.train_normal_data[iteration*self.batch_size : (iteration+1)*self.batch_size]      
                 u_ = np.reshape(train_images,(-1,64,64,1)) 
                 z_ = np.random.uniform(-1,1,size=(self.batch_size,1,1,self.z_size))                                                           
-                c_ = one_hot[np.random.randint(0,10,(self.batch_size))].reshape([-1,1,1,10])
+                c_ = one_hot[np.random.randint(0,self.c_size,(self.batch_size))].reshape([-1,1,1,self.c_size])
 
                 _  = self.sess.run([self.E_optim], {self.u : u_, self.z : z_, self.c : c_, self.isTrain : True})
 

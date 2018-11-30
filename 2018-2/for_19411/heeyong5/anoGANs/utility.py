@@ -2,6 +2,44 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec 
 import numpy as np
 from sklearn.metrics import roc_curve, auc, roc_auc_score, confusion_matrix
+import itertools
+from sklearn_evaluation import plot
+
+
+def plot_confusion_matrix(cm, classes,
+                          normalize=False,
+                          title='Confusion matrix',
+                          cmap=plt.cm.Blues):
+    """
+    This function prints and plots the confusion matrix.
+    Normalization can be applied by setting `normalize=True`.
+    """
+    if normalize:
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        print("Normalized confusion matrix")
+    else:
+        print('Confusion matrix, without normalization')
+
+    print(cm)
+
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+
+    fmt = '.2f' if normalize else 'd'
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, format(cm[i, j], fmt),
+                 horizontalalignment="center",
+                 color="white" if cm[i, j] > thresh else "black")
+
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+    plt.tight_layout()
+
 
 
 def idx_shuffle(x) : 
@@ -72,7 +110,7 @@ def my_roc_curve(normal, anomaly, path, name, is_True_one = True) :
 
     fpr = dict()
     tpr = dict()
-    fpr, tpr, _ = roc_curve(test, pred)
+    fpr, tpr, thresh = roc_curve(test, pred)
     roc_auc = auc(fpr, tpr)
 
     fig = plt.figure()
@@ -81,13 +119,33 @@ def my_roc_curve(normal, anomaly, path, name, is_True_one = True) :
     plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
     plt.xlim([-0.01, 1.0])
     plt.ylim([0.0, 1.01])
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True Positive Rate')
+    plt.xlabel('False Positive Rate(1-specity)')
+    plt.ylabel('True Positive Rate(sensitivity)')
     plt.title('ROC Curve - '+ name)
     plt.legend(loc="lower right")
 
     plt.savefig(path)     
     plt.close(fig)
+    
+    pred_class = pred > thresh[np.argmax((1-fpr)**2 +tpr**2)]
+    
+    fig1 = plt.figure()
+    plot_confusion_matrix(confusion_matrix(test, pred_class), classes='', normalize=True,
+                          title='Normalized confusion matrix - ' + name)
+    plt.savefig(path+'_confusion matrix_normal')     
+    plt.close(fig1)
+    
+    fig2 = plt.figure()
+    plot_confusion_matrix(confusion_matrix(test, pred_class), classes='',
+                          title='confusion matrix - ' + name)
+    plt.savefig(path+'_confusion matrix')     
+    plt.close(fig2)
+    
+    fig3 = plt.figure()
+    plot.precision_recall(test, pred)
+    plt.title('PRC - '+ name)
+    plt.savefig(path+'_PRC')     
+    plt.close(fig3)
 
 def my_hist(test_normal, test_anomaly,train_normal, path, name) : 
 
@@ -102,5 +160,8 @@ def my_hist(test_normal, test_anomaly,train_normal, path, name) :
 
     plt.savefig(path)     
     plt.close(fig)
+
+
+
 
 

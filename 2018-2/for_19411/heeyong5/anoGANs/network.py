@@ -33,7 +33,7 @@ def G(x,c,isTrain = True, reuse = False, name = 'G') : #input = (minibatch * w *
   
     return r5
 
-def E(x,isTrain = True, reuse = False, name = 'E') : #input = (minibatch * w * h * ch)
+def E(x, isTrain = True, reuse = False, name = 'E',c_size = 10) : #input = (minibatch * w * h * ch)
     
     w_init = tf.truncated_normal_initializer(mean= 0.0, stddev=0.02)
     b_init = tf.constant_initializer(0.0)
@@ -63,14 +63,14 @@ def E(x,isTrain = True, reuse = False, name = 'E') : #input = (minibatch * w * h
         
         fc0  = tf.reshape(conv4, (-1, 4*4*512))
         
-        w1 = tf.get_variable('w1',[4*4*512, 10],initializer=w_init)
-        b1 = tf.get_variable('b1',[10],initializer=b_init)                                         
+        w1 = tf.get_variable('w1',[4*4*512, c_size],initializer=w_init)
+        b1 = tf.get_variable('b1',[c_size],initializer=b_init)                                         
         fc1 = tf.nn.softmax(tf.matmul(fc0,w1) + b1, name = name)
             
     r5 = tf.nn.tanh(tf.layers.batch_normalization(conv5,training=isTrain), name = name)#4*4*512
   
   
-    return r5, tf.reshape(fc1,(-1,1,1,10), name = name+'_c')
+    return r5, tf.reshape(fc1,(-1,1,1,c_size), name = name+'_c')
 
 
 def D_enc(x,isTrain=True,reuse = False, name = 'D_enc') :
@@ -132,7 +132,7 @@ def D_dec(x,isTrain=True,reuse = False, name = 'D_dec') :
     r10= tf.nn.tanh(conv10,name=name)#64*64*1
     
     return r10
-def Q_cat(x,reuse = False, name = 'Q_cat') :
+def Q_cat(x, reuse = False, name = 'Q_cat',c_size = 10) :
     
     w_init = tf.truncated_normal_initializer(mean= 0.0, stddev=0.02)
     b_init = tf.constant_initializer(0.0)
@@ -141,11 +141,11 @@ def Q_cat(x,reuse = False, name = 'Q_cat') :
 
         fc0  = tf.reshape(x, (-1, 100))
         
-        w1 = tf.get_variable('w1',[100, 10],initializer=w_init)
-        b1 = tf.get_variable('b1',[10],initializer=b_init)                                     
+        w1 = tf.get_variable('w1',[100, c_size],initializer=w_init)
+        b1 = tf.get_variable('b1',[c_size],initializer=b_init)                                     
         fc1 = tf.nn.softmax(tf.matmul(fc0,w1) + b1)
     
-    return tf.reshape(fc1, (-1,1,1,10), name = name)
+    return tf.reshape(fc1, (-1,1,1,c_size), name = name)
 
 
     
