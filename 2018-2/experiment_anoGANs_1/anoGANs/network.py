@@ -33,7 +33,7 @@ def G(x,c,isTrain = True, reuse = False, name = 'G') : #input = (minibatch * w *
   
     return r5
 
-def E(x, isTrain = True, reuse = False, name = 'E',c_size = 10) : #input = (minibatch * w * h * ch)
+def E(x, isTrain = True, reuse = False, name = 'E', z_size = 100, c_size = 10) : #input = (minibatch * w * h * ch)
     
     w_init = tf.truncated_normal_initializer(mean= 0.0, stddev=0.02)
     b_init = tf.constant_initializer(0.0)
@@ -56,7 +56,7 @@ def E(x, isTrain = True, reuse = False, name = 'E',c_size = 10) : #input = (mini
                 kernel_initializer=w_init, bias_initializer=b_init)
         r4 = tf.nn.elu(tf.layers.batch_normalization(conv4,training=isTrain))#4*4*512
 
-        conv5 = tf.layers.conv2d(r4,100,[4,4], strides=(1,1),padding = 'valid',
+        conv5 = tf.layers.conv2d(r4,z_size,[4,4], strides=(1,1),padding = 'valid',
                 kernel_initializer=w_init, bias_initializer=b_init) #1*1*100
         
         #

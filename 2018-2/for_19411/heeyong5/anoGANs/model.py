@@ -14,7 +14,7 @@ def Cross_Entropy(t,y,name) :
 class BE_infoGANs_v2 : 
     
     def __init__(self,sess, path, data, GANs_epoch = 100,E_epoch = 30, batch_size = 100, z_size = 100, lam = 0.01, gamma = 0.7, k_curr = 0.0,
-                G_lr = 2e-4, G_beta1 = 0.5, E_lr = 2e-4, E_beta1 = 0.1, D_lr = 2e-5, D_beta1 = 0.5, c_size = 10) :
+                G_lr = 2e-4, G_beta1 = 0.5, E_lr = 2e-4, E_beta1 = 0.1, D_lr = 2e-5, D_beta1 = 0.5, c_size = 10, feature_size = 100, minibatch_increase = False) :
         
         self.sess = sess
         self.GANs_epoch = GANs_epoch
@@ -33,6 +33,9 @@ class BE_infoGANs_v2 :
         self.path = path
         self.data = data
         self.c_size = c_size
+        self.feature_size = feature_size
+        self.minibatch_increase = minibatch_increase
+        
         if not os.path.isdir(path) :
             os.mkdir(path)
             
@@ -50,10 +53,10 @@ class BE_infoGANs_v2 :
         self.isTrain = tf.placeholder(dtype=tf.bool,name='isTrain')  
 
         self.G_z = G(self.z, self.c, self.isTrain, name='G_z') 
-        self.E_u,  self.E_u_c = E(self.u, self.isTrain,name = 'E_u', c_size = self.c_size) 
+        self.E_u,  self.E_u_c = E(self.u, self.isTrain,name = 'E_u', c_size = self.c_size, z_size = self.z_size) 
 
         self.re_image = G(self.E_u, self.E_u_c, self.isTrain, reuse=True, name ='re_image')
-        self.re_z, self.re_z_c = E(self.G_z, self.isTrain, reuse=True, name ='re_z',c_size = self.c_size)
+        self.re_z, self.re_z_c = E(self.G_z, self.isTrain, reuse=True, name ='re_z',c_size = self.c_size,z_size = self.z_size)
 
         self.re_z_loss = MSE(self.re_z , self.z, name = 're_z_loss') 
         self.re_z_c_loss = Cross_Entropy(self.c, self.re_z_c, name = 're_z_c_loss')
@@ -112,12 +115,21 @@ class BE_infoGANs_v2 :
         start = time.time()
         for epoch in range(self.GANs_epoch) :
             self.data.train_normal_data = idx_shuffle(self.data.train_normal_data) 
-            for iteration in range(self.data.train_normal_data.shape[0] // self.batch_size) : 
+            
+            if epoch < 3 and self.minibatch_increase  : 
+                temp_batch = 32
+            elif epoch < 5 and self.minibatch_increase  : 
+                temp_batch = 64
+            else : 
+                temp_batch = self.batch_size
+            
+            
+            for iteration in range(self.data.train_normal_data.shape[0] // temp_batch) : 
 
-                train_images = self.data.train_normal_data[iteration*self.batch_size : (iteration+1)*self.batch_size]      
+                train_images = self.data.train_normal_data[iteration*temp_batch : (iteration+1)*temp_batch]      
                 u_ = np.reshape(train_images,(-1,64,64,1)) 
-                z_ = np.random.uniform(-1,1,size=(self.batch_size,1,1,self.z_size))                                                                                               
-                c_ = one_hot[np.random.randint(0,self.c_size,(self.batch_size))].reshape([-1,1,1,self.c_size])
+                z_ = np.random.uniform(-1,1,size=(temp_batch,1,1,self.z_size))                                                                                               
+                c_ = one_hot[np.random.randint(0,self.c_size,(temp_batch))].reshape([-1,1,1,self.c_size])
 
                 _ , D_e, D_real_e, D_fake_e = self.sess.run([self.D_optim, self.D_loss, self.D_real_loss, self.D_fake_loss],
                                                      {self.u : u_, self.z : z_, self.c : c_, self.k : self.k_curr, self.isTrain : True})
@@ -259,10 +271,10 @@ class BE_infoGANs_v2 :
             for i in range(self.batch_size) :
 
                 feature_e = np.mean(np.sqrt((np.reshape(im_enc[0][i],(-1,100))-np.reshape(im_re_enc[i],(-1,100)))**2))
-                feature_cos = cosine_similarity(np.reshape(im_enc[0][i],(-1,100)),np.reshape(im_re_enc[i],(-1,100)))
+                feature_cos = 1 - cosine_similarity(np.reshape(im_enc[0][i],(-1,100)),np.reshape(im_re_enc[i],(-1,100)))
                 sign_e = np.mean(np.abs(np.sign(im_enc)-np.sign(im_re_enc)))
                 residual_e = np.mean(np.sqrt((np.reshape(u_[i],(1,64*64))-np.reshape(im_re[i],(1,64*64)))**2))
-                residual_cos = cosine_similarity(np.reshape(u_[i],(1,64*64)),np.reshape(im_re[i],(1,64*64)))
+                residual_cos = 1 - cosine_similarity(np.reshape(u_[i],(1,64*64)),np.reshape(im_re[i],(1,64*64)))
 
                 test_normal_feature_mse.append(feature_e)
                 test_normal_feature_cosine.append(feature_cos)
@@ -281,10 +293,10 @@ class BE_infoGANs_v2 :
             for i in range(self.batch_size) :
 
                 feature_e = np.mean(np.sqrt((np.reshape(im_enc[0][i],(-1,100))-np.reshape(im_re_enc[i],(-1,100)))**2))
-                feature_cos = cosine_similarity(np.reshape(im_enc[0][i],(-1,100)),np.reshape(im_re_enc[i],(-1,100)))
+                feature_cos = 1 - cosine_similarity(np.reshape(im_enc[0][i],(-1,100)),np.reshape(im_re_enc[i],(-1,100)))
                 sign_e = np.mean(np.abs(np.sign(im_enc)-np.sign(im_re_enc)))
                 residual_e = np.mean(np.sqrt((np.reshape(u_[i],(1,64*64))-np.reshape(im_re[i],(1,64*64)))**2))
-                residual_cos = cosine_similarity(np.reshape(u_[i],(1,64*64)),np.reshape(im_re[i],(1,64*64)))
+                residual_cos = 1 - cosine_similarity(np.reshape(u_[i],(1,64*64)),np.reshape(im_re[i],(1,64*64)))
 
                 test_anomalous_feature_mse.append(feature_e)
                 test_anomalous_feature_cosine.append(feature_cos)
@@ -303,10 +315,10 @@ class BE_infoGANs_v2 :
             for i in range(self.batch_size) :
 
                 feature_e = np.mean(np.sqrt((np.reshape(im_enc[0][i],(-1,100))-np.reshape(im_re_enc[i],(-1,100)))**2))
-                feature_cos = cosine_similarity(np.reshape(im_enc[0][i],(-1,100)),np.reshape(im_re_enc[i],(-1,100)))
+                feature_cos = 1 - cosine_similarity(np.reshape(im_enc[0][i],(-1,100)),np.reshape(im_re_enc[i],(-1,100)))
                 sign_e = np.mean(np.abs(np.sign(im_enc)-np.sign(im_re_enc)))
                 residual_e = np.mean(np.sqrt((np.reshape(u_[i],(1,64*64))-np.reshape(im_re[i],(1,64*64)))**2))
-                residual_cos = cosine_similarity(np.reshape(u_[i],(1,64*64)),np.reshape(im_re[i],(1,64*64)))
+                residual_cos = 1 - cosine_similarity(np.reshape(u_[i],(1,64*64)),np.reshape(im_re[i],(1,64*64)))
 
                 train_normal_feature_mse.append(feature_e)
                 train_normal_feature_cosine.append(feature_cos)
@@ -327,13 +339,13 @@ class BE_infoGANs_v2 :
                 path = self.path+'/hist_residual_cosine', name = 'residual_cosine')
         
         my_roc_curve(test_normal_feature_mse, test_anomalous_feature_mse, 
-                path = self.path+'/roc_feature_mse', name = 'feature_mse', is_True_one =False)
+                path = self.path+'/roc_feature_mse', name = 'feature_mse')
         my_roc_curve(test_normal_feature_cosine, test_anomalous_feature_cosine, 
                 path = self.path+'/roc_feature_cosine', name = 'feature_cosine')
         my_roc_curve(test_normal_feature_signcode, test_anomalous_feature_signcode, 
-                path = self.path+'/roc_feature_signcode', name = 'feature_signcode', is_True_one =False)
+                path = self.path+'/roc_feature_signcode', name = 'feature_signcode')
         my_roc_curve(test_normal_residual_mse, test_anomalous_residual_mse,
-                path = self.path+'/roc_residual_mse', name = 'residual_mse', is_True_one =False)
+                path = self.path+'/roc_residual_mse', name = 'residual_mse')
         my_roc_curve(test_normal_residual_cosine, test_anomalous_residual_cosine,
                 path = self.path+'/roc_residual_cosine', name = 'residual_cosine')
                

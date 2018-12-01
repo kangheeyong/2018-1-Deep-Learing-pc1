@@ -1,7 +1,10 @@
-
-/usr/bin/python3 ./test2.py half_4 "1 2 3 4 5" 1
-/usr/bin/python3 ./test2.py half_5 "1 2 3 4 5" 1
-/usr/bin/python3 ./test2.py half_6 "1 2 3 4 5" 1
-/usr/bin/python3 ./test2.py half_7 "1 2 3 4 5" 1
-/usr/bin/python3 ./test2.py half_8 "1 2 3 4 5" 1
-/usr/bin/python3 ./test2.py half_9 "1 2 3 4 5" 1
+/usr/bin/python3 ./test2.py half_0 "0 1 2 3 4 5" 1
+/usr/bin/python3 ./test2.py half_1 "0 1 2 3 4 5" 1
+/usr/bin/python3 ./test2.py half_2 "0 1 2 3 4 5" 1
+/usr/bin/python3 ./test2.py half_3 "0 1 2 3 4 5" 1
+/usr/bin/python3 ./test2.py half_4 "0 1 2 3 4 5" 1
+/usr/bin/python3 ./test2.py half_5 "0 1 2 3 4 5" 1
+/usr/bin/python3 ./test2.py half_6 "0 1 2 3 4 5" 1
+/usr/bin/python3 ./test2.py half_7 "0 1 2 3 4 5" 1
+/usr/bin/python3 ./test2.py half_8 "0 1 2 3 4 5" 1
+/usr/bin/python3 ./test2.py half_9 "0 1 2 3 4 5" 1

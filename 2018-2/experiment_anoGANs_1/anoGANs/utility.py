@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec 
 import numpy as np
-from sklearn.metrics import roc_curve, auc, roc_auc_score, confusion_matrix
+from sklearn.metrics import roc_curve, auc, roc_auc_score, confusion_matrix, precision_recall_curve, average_precision_score
 import itertools
 from sklearn_evaluation import plot
 
@@ -97,17 +97,15 @@ def gan_loss_graph_save(G_loss,D_loss,path):
 
 def my_roc_curve(normal, anomaly, path, name, is_True_one = True) : 
 
-    if is_True_one : 
-        label_normal = np.ones(np.array(normal).shape[0])
-        label_anomalous = np.zeros(np.array(anomaly).shape[0])
-    else : 
-        label_normal = np.zeros(np.array(normal).shape[0])
-        label_anomalous = np.ones(np.array(anomaly).shape[0])
-
-    test = np.concatenate((label_normal, label_anomalous), axis=0)
 
     pred = np.concatenate((np.reshape(normal,-1), np.reshape(anomaly,-1)), axis=0)
 
+        
+    label_normal = np.zeros(np.array(normal).shape[0])
+    label_anomalous = np.ones(np.array(anomaly).shape[0])
+    test = np.concatenate((label_normal, label_anomalous), axis=0)
+
+    
     fpr = dict()
     tpr = dict()
     fpr, tpr, thresh = roc_curve(test, pred)
@@ -119,7 +117,7 @@ def my_roc_curve(normal, anomaly, path, name, is_True_one = True) :
     plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
     plt.xlim([-0.01, 1.0])
     plt.ylim([0.0, 1.01])
-    plt.xlabel('False Positive Rate(1-specity)')
+    plt.xlabel('False Positive Rate(1-specificity)')
     plt.ylabel('True Positive Rate(sensitivity)')
     plt.title('ROC Curve - '+ name)
     plt.legend(loc="lower right")
@@ -127,8 +125,8 @@ def my_roc_curve(normal, anomaly, path, name, is_True_one = True) :
     plt.savefig(path)     
     plt.close(fig)
     
-    pred_class = pred > thresh[np.argmax((1-fpr)**2 +tpr**2)]
-    
+    pred_class = pred >= thresh[np.argmax((1-fpr)**2 +tpr**2)]
+ 
     fig1 = plt.figure()
     plot_confusion_matrix(confusion_matrix(test, pred_class), classes='', normalize=True,
                           title='Normalized confusion matrix - ' + name)
@@ -141,11 +139,7 @@ def my_roc_curve(normal, anomaly, path, name, is_True_one = True) :
     plt.savefig(path+'_confusion matrix')     
     plt.close(fig2)
     
-    fig3 = plt.figure()
-    plot.precision_recall(test, pred)
-    plt.title('PRC - '+ name)
-    plt.savefig(path+'_PRC')     
-    plt.close(fig3)
+
 
 def my_hist(test_normal, test_anomaly,train_normal, path, name) : 
 
@@ -153,13 +147,14 @@ def my_hist(test_normal, test_anomaly,train_normal, path, name) :
     plt.hist(np.reshape(test_normal,-1), bins='auto', alpha=0.6, label="test normal",normed=1)  
     plt.hist(np.reshape(test_anomaly,-1), bins='auto', alpha=0.6, label="test anomaly",normed=1)  
     plt.hist(np.reshape(train_normal,-1), bins='auto', alpha=0.6, label="train normal",normed=1)  
-  
+
     plt.xlabel('score value') 
     plt.title('PDF - '+ name)
     plt.legend()
 
     plt.savefig(path)     
     plt.close(fig)
+
 
 
 
