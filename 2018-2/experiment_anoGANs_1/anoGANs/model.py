@@ -14,7 +14,8 @@ def Cross_Entropy(t,y,name) :
 class BE_infoGANs_v2 : 
     
     def __init__(self,sess, path, data, GANs_epoch = 100,E_epoch = 30, batch_size = 100, z_size = 100, lam = 0.01, gamma = 0.7, k_curr = 0.0,
-                G_lr = 2e-4, G_beta1 = 0.5, E_lr = 2e-4, E_beta1 = 0.1, D_lr = 2e-5, D_beta1 = 0.5, c_size = 10, feature_size = 100, minibatch_increase = False) :
+                G_lr = 2e-4, G_beta1 = 0.5, E_lr = 2e-4, E_beta1 = 0.1, D_lr = 2e-5, D_beta1 = 0.5, c_size = 10, feature_size = 100, minibatch_increase = False,
+                factor_decrease = False) :
         
         self.sess = sess
         self.GANs_epoch = GANs_epoch
@@ -35,6 +36,7 @@ class BE_infoGANs_v2 :
         self.c_size = c_size
         self.feature_size = feature_size
         self.minibatch_increase = minibatch_increase
+        self.factor_decrease = factor_decrease
         
         if not os.path.isdir(path) :
             os.mkdir(path)
@@ -50,7 +52,8 @@ class BE_infoGANs_v2 :
         self.c = tf.placeholder(tf.float32,shape=(None,1,1,self.c_size),name = 'c')   
         self.u = tf.placeholder(tf.float32, shape = (None, 64,64,1),name='u')     
         self.k = tf.placeholder(tf.float32, name = 'k')
-        self.isTrain = tf.placeholder(dtype=tf.bool,name='isTrain')  
+        self.isTrain = tf.placeholder(dtype=tf.bool,name='isTrain')
+        self.factor = tf.placeholder(tf.float32, name = 'factor')
 
         self.G_z = G(self.z, self.c, self.isTrain, name='G_z') 
         self.E_u,  self.E_u_c = E(self.u, self.isTrain,name = 'E_u', c_size = self.c_size, z_size = self.z_size) 
@@ -85,8 +88,8 @@ class BE_infoGANs_v2 :
         Q_vars = [var for var in T_vars if var.name.startswith('Q')]
 
         with tf.control_dependencies(tf.get_collection(tf.GraphKeys.UPDATE_OPS)) :  
-            self.D_optim = tf.train.AdamOptimizer(D_lr,beta1=D_beta1).minimize(self.D_loss, var_list=D_vars, name='D_optim') 
-            self.G_optim = tf.train.AdamOptimizer(G_lr,beta1=G_beta1).minimize(self.G_loss + self.Q_loss, var_list=G_vars+Q_vars, name='G_optim')
+            self.D_optim = tf.train.AdamOptimizer(self.factor*D_lr,beta1=D_beta1).minimize(self.D_loss, var_list=D_vars, name='D_optim') 
+            self.G_optim = tf.train.AdamOptimizer(self.factor*G_lr,beta1=G_beta1).minimize(self.G_loss + self.Q_loss, var_list=G_vars+Q_vars, name='G_optim')
             self.E_optim = tf.train.AdamOptimizer(E_lr,beta1=E_beta1).minimize(self.E_loss, var_list=E_vars, name='E_optim')
             self.E_AE_optim = tf.train.AdamOptimizer(E_lr,beta1=E_beta1).minimize(self.re_image_loss, var_list=E_vars, name='E_AE_optim')
             
@@ -116,26 +119,34 @@ class BE_infoGANs_v2 :
         for epoch in range(self.GANs_epoch) :
             self.data.train_normal_data = idx_shuffle(self.data.train_normal_data) 
             
-            if epoch < 3 and self.minibatch_increase  : 
-                temp_batch = 32
-            elif epoch < 5 and self.minibatch_increase  : 
-                temp_batch = 64
+            if ((epoch < 1) & self.minibatch_increase)  : 
+                temp_batch = int(self.batch_size/4)
+
+            elif ((epoch < 2) & self.minibatch_increase)  : 
+                temp_batch = int(self.batch_size/2)
+
             else : 
                 temp_batch = self.batch_size
-            
-            
-            for iteration in range(self.data.train_normal_data.shape[0] // temp_batch) : 
 
+            
+            if ((epoch > self.GANs_epoch/2) & self.factor_decrease)  :
+                factor = 0.5
+     
+            else :
+                factor = 1
+
+            for iteration in range(self.data.train_normal_data.shape[0] // temp_batch) : 
+                
                 train_images = self.data.train_normal_data[iteration*temp_batch : (iteration+1)*temp_batch]      
                 u_ = np.reshape(train_images,(-1,64,64,1)) 
                 z_ = np.random.uniform(-1,1,size=(temp_batch,1,1,self.z_size))                                                                                               
                 c_ = one_hot[np.random.randint(0,self.c_size,(temp_batch))].reshape([-1,1,1,self.c_size])
 
                 _ , D_e, D_real_e, D_fake_e = self.sess.run([self.D_optim, self.D_loss, self.D_real_loss, self.D_fake_loss],
-                                                     {self.u : u_, self.z : z_, self.c : c_, self.k : self.k_curr, self.isTrain : True})
+                                                     {self.u : u_, self.z : z_, self.c : c_, self.k : self.k_curr, self.isTrain : True, self.factor : factor})
 
                 _ , G_e,Q_e = self.sess.run([self.G_optim, self.G_loss,self.Q_loss],
-                                       {self.u : u_, self.z : z_, self.c : c_, self.k : self.k_curr, self.isTrain : True}) 
+                                       {self.u : u_, self.z : z_, self.c : c_, self.k : self.k_curr, self.isTrain : True, self.factor : factor}) 
 
                 self.k_curr = self.k_curr + self.lam * (self.gamma*D_real_e - G_e)
                 measure = D_real_e + np.abs(self.gamma*D_real_e - G_e)
@@ -388,6 +399,7 @@ class BE_infoGANs_v2 :
         
         
         
+
 
 
 

@@ -1,0 +1,29 @@
+
+/usr/bin/python3 ./test2.py no_4_2 "0 1 2 3 5 6 7 8 9" 0
+/usr/bin/python3 ./test2.py no_3_0 "0 1 2 4 5 6 7 8 9" 0
+/usr/bin/python3 ./test2.py no_3_1 "0 1 2 4 5 6 7 8 9" 0
+/usr/bin/python3 ./test2.py no_3_2 "0 1 2 4 5 6 7 8 9" 0
+/usr/bin/python3 ./test2.py no_2_0 "0 1 3 4 5 6 7 8 9" 0
+/usr/bin/python3 ./test2.py no_2_1 "0 1 3 4 5 6 7 8 9" 0
+/usr/bin/python3 ./test2.py no_2_2 "0 1 3 4 5 6 7 8 9" 0
+/usr/bin/python3 ./test2.py no_1_0 "0 2 3 4 5 6 7 8 9" 0
+/usr/bin/python3 ./test2.py no_1_1 "0 2 3 4 5 6 7 8 9" 0
+/usr/bin/python3 ./test2.py no_1_2 "0 2 3 4 5 6 7 8 9" 0
+/usr/bin/python3 ./test2.py no_0_0 "1 2 3 4 5 6 7 8 9" 0
+/usr/bin/python3 ./test2.py no_0_1 "1 2 3 4 5 6 7 8 9" 0
+/usr/bin/python3 ./test2.py no_0_2 "1 2 3 4 5 6 7 8 9" 0
+/usr/bin/python3 ./test2.py no_9_0 "0 1 2 3 4 5 6 7 8" 0
+/usr/bin/python3 ./test2.py no_9_1 "0 1 2 3 4 5 6 7 8" 0
+/usr/bin/python3 ./test2.py no_9_2 "0 1 2 3 4 5 6 7 8" 0
+/usr/bin/python3 ./test2.py no_8_0 "0 1 2 3 4 5 6 7 9" 0
+/usr/bin/python3 ./test2.py no_8_1 "0 1 2 3 4 5 6 7 9" 0
+/usr/bin/python3 ./test2.py no_8_2 "0 1 2 3 4 5 6 7 9" 0
+/usr/bin/python3 ./test2.py no_7_0 "0 1 2 3 4 5 6 8 9" 0
+/usr/bin/python3 ./test2.py no_7_1 "0 1 2 3 4 5 6 8 9" 0
+/usr/bin/python3 ./test2.py no_7_2 "0 1 2 3 4 5 6 8 9 " 0
+/usr/bin/python3 ./test2.py no_6_0 "0 1 2 3 4 5 7 8 9" 0
+/usr/bin/python3 ./test2.py no_6_1 "0 1 2 3 4 5 7 8 9" 0
+/usr/bin/python3 ./test2.py no_6_2 "0 1 2 3 4 5 7 8 9" 0
+/usr/bin/python3 ./test2.py no_5_0 "0 1 2 3 4 6 7 8 9" 0
+/usr/bin/python3 ./test2.py no_5_1 "0 1 2 3 4 6 7 8 9" 0
+/usr/bin/python3 ./test2.py no_5_2 "0 1 2 3 4 6 7 8 9" 0

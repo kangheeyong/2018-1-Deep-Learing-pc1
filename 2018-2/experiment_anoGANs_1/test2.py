@@ -27,7 +27,7 @@ data.set_anomaly(anomalous_nums = ano_nums)
 
 
 sess = tf.Session(config=tf.ConfigProto(gpu_options=tf.GPUOptions(allow_growth=True))) 
-sess.run(tf.global_variables_initializer())
+
 
 path = file_name
 mnist = data

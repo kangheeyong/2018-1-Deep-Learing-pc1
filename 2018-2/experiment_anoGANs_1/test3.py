@@ -27,11 +27,11 @@ data.set_anomaly(anomalous_nums = ano_nums)
 
 
 sess = tf.Session(config=tf.ConfigProto(gpu_options=tf.GPUOptions(allow_growth=True))) 
-sess.run(tf.global_variables_initializer())
+
 
 path = file_name
 mnist = data
-a = BE_infoGANs_v2(sess,path,mnist, GANs_epoch = 30, E_epoch = 10,D_lr = 2e-5, G_lr = 2e-4, c_size = 20,gamma = 0.7, lam = 0.01,  minibatch_increase = True)
+a = BE_infoGANs_v2(sess,path,mnist, GANs_epoch = 50, E_epoch = 15,D_lr = 2e-5, G_lr = 2e-4, c_size = 20,gamma = 0.7, lam = 0.01,  minibatch_increase = True)
 a.GANs_fit()
 a.E_fit()
 a.report()
