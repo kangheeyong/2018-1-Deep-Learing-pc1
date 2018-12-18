@@ -49,7 +49,7 @@ def G(x,isTrain = True, reuse = False, name = 'G', z_size = 100) : #input = (min
         
         conv6 = tf.layers.conv2d(r5,1,[3,3], strides=(1,1),padding = 'same', kernel_initializer=w_init, bias_initializer=b_init) #64*64*1
 
-    return  tf.add(conv6,0.0,name=name)
+    return  tf.nn.sigmoid(conv6,name=name)
 
 def E(x, isTrain = True, reuse = False, name = 'E', z_size = 100) : #input = (minibatch * w * h * ch)
     
@@ -108,7 +108,7 @@ def D_dec(x,isTrain=True,reuse = False, name = 'D_dec') :
     
         conv6 = tf.layers.conv2d(r5,1,[3,3], strides=(1,1),padding = 'same', kernel_initializer=w_init, bias_initializer=b_init) #64*64*1
 
-    return  tf.add(conv6, 0.0, name=name)#64*64*1
+    return  tf.nn.sigmoid(conv6, name=name)#64*64*1
 
 
     

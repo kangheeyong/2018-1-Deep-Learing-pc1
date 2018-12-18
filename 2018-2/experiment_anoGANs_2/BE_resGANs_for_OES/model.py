@@ -3,7 +3,7 @@ import numpy as np
 import os
 import time
 from BE_resGANs_for_OES.network import G, E, D_enc, D_dec
-from BE_resGANs_for_OES.utility import idx_shuffle, mnist_4by4_save, gan_loss_graph_save, my_roc_curve, my_hist
+from BE_resGANs_for_OES.utility import idx_shuffle, mnist_4by4_save, gan_loss_graph_save, my_roc_curve, my_hist, mnist_matlab_4by4_save
 from sklearn.metrics.pairwise import cosine_similarity
 
 def MSE(x1,x2,name) :
@@ -13,9 +13,9 @@ def Cross_Entropy(t,y,name) :
 
 class BE_resGANs_for_OES : 
     
-    def __init__(self,sess, path, data, GANs_epoch = 100,E_epoch = 30, batch_size = 100, z_size = 100, lam = 0.01, gamma = 0.7, k_curr = 0.0,
-                G_lr = 2e-4, G_beta1 = 0.5, E_lr = 2e-4, E_beta1 = 0.1, D_lr = 2e-5, D_beta1 = 0.5, feature_size = 100, minibatch_increase = False,
-                factor_decrease = False) :
+    def __init__(self,sess, path, data, GANs_epoch = 100,E_epoch = 30, batch_size = 100, z_size = 100, lam = 0.01, gamma = 0.7, 
+                 k_curr = 0.0, G_lr = 2e-4, G_beta1 = 0.5, E_lr = 2e-4, E_beta1 = 0.1, D_lr = 2e-5, D_beta1 = 0.5, feature_size = 100,
+                 minibatch_increase = False, factor_decrease = False) :
         
         self.sess = sess
         self.GANs_epoch = GANs_epoch
@@ -63,9 +63,9 @@ class BE_resGANs_for_OES :
         self.re_image_loss = MSE(self.re_image,self.u, name = 're_image_loss') 
                
 
-        self.D_enc = D_enc(self.u, self.isTrain, name = 'D_enc')
+        self.D_enc = D_enc(self.u, self.isTrain, name = 'D_enc',feature_size = self.feature_size)
         self.D_real = D_dec(self.D_enc, self.isTrain, name = 'D_real')                       
-        self.D_fake = D_dec(D_enc(self.G_z, self.isTrain,reuse=True), self.isTrain, reuse=True, name = 'D_fake')         
+        self.D_fake = D_dec(D_enc(self.G_z, self.isTrain,reuse=True,feature_size = self.feature_size), self.isTrain, reuse=True, name = 'D_fake')         
        
 
 
@@ -95,9 +95,10 @@ class BE_resGANs_for_OES :
 
 
         test_z = np.random.uniform(-1,1,size=(16,1,1,self.z_size))
-        mnist_4by4_save(np.reshape(self.data.test_normal_data[0:16],(-1,128,128,1)),self.path + '/GANs_result/normal.png')    
-        mnist_4by4_save(np.reshape(self.data.test_anomalous_data[0:16],(-1,128,128,1)),self.path + '/GANs_result/anomalous.png')    
-
+        mnist_4by4_save(np.reshape(self.data.test_normal_data[0:16],(-1,128,128,1)),self.path + '/GANs_result/normal')    
+        mnist_matlab_4by4_save(np.reshape(self.data.test_normal_data[0:16],(-1,128,128,1)),self.path + '/GANs_result/normal')    
+        mnist_4by4_save(np.reshape(self.data.test_anomalous_data[0:16],(-1,128,128,1)),self.path + '/GANs_result/anomalous')    
+        mnist_matlab_4by4_save(np.reshape(self.data.test_anomalous_data[0:16],(-1,128,128,1)),self.path + '/GANs_result/anomalous') 
         log_txt = open(self.path +'/GANs_result/log.txt','w')
 
         hist_G = []
@@ -163,11 +164,12 @@ class BE_resGANs_for_OES :
                     np.mean(new_measure),self.k_curr))
 
             r = self.sess.run([self.G_z],feed_dict={self.z : test_z, self.isTrain : False})       
-            mnist_4by4_save(np.reshape(r,(-1,128,128,1)),self.path + '/GANs_result/G_{}.png'.format(str(epoch).zfill(3)))
-
+            mnist_4by4_save(np.reshape(r,(-1,128,128,1)),self.path + '/GANs_result/G_{}'.format(str(epoch).zfill(3)))
+            mnist_matlab_4by4_save(np.reshape(r,(-1,128,128,1)),self.path + '/GANs_result/G_{}'.format(str(epoch).zfill(3)))
+            
             r = self.sess.run([self.D_real],feed_dict={self.u : self.data.test_normal_data[0:16], self.isTrain : False})        
-            mnist_4by4_save(np.reshape(r,(-1,128,128,1)),self.path + '/GANs_result/D_{}.png'.format(str(epoch).zfill(3)))
-
+            mnist_4by4_save(np.reshape(r,(-1,128,128,1)),self.path + '/GANs_result/D_{}'.format(str(epoch).zfill(3)))
+            mnist_matlab_4by4_save(np.reshape(r,(-1,128,128,1)),self.path + '/GANs_result/D_{}'.format(str(epoch).zfill(3)))
             np.random.seed(int(time.time()))
 
 
@@ -194,9 +196,10 @@ class BE_resGANs_for_OES :
 
 
         test_z = np.random.uniform(-1,1,size=(16,1,1,self.z_size))
-        mnist_4by4_save(np.reshape(self.data.test_normal_data[0:16],(-1,128,128,1)),self.path + '/E_result/normal.png')    
-        mnist_4by4_save(np.reshape(self.data.test_anomalous_data[0:16],(-1,128,128,1)),self.path + '/E_result/anomalous.png')    
-        
+        mnist_4by4_save(np.reshape(self.data.test_normal_data[0:16],(-1,128,128,1)),self.path + '/E_result/normal')   
+        mnist_matlab_4by4_save(np.reshape(self.data.test_normal_data[0:16],(-1,128,128,1)),self.path + '/E_result/normal')
+        mnist_4by4_save(np.reshape(self.data.test_anomalous_data[0:16],(-1,128,128,1)),self.path + '/E_result/anomalous')    
+        mnist_matlab_4by4_save(np.reshape(self.data.test_anomalous_data[0:16],(-1,128,128,1)),self.path + '/E_result/anomalous')    
 
         E_error = []
         log_txt = open(self.path +'/E_result/log.txt','w')
@@ -223,10 +226,12 @@ class BE_resGANs_for_OES :
 
 
             r = self.sess.run([self.re_image],feed_dict={self.u : self.data.test_normal_data[0:16],self.isTrain : False})        
-            mnist_4by4_save(np.reshape(r,(-1,128,128,1)),self.path + '/E_result/normal_{}.png'.format(str(epoch).zfill(3)))
-
+            mnist_4by4_save(np.reshape(r,(-1,128,128,1)),self.path + '/E_result/normal_{}'.format(str(epoch).zfill(3)))
+            mnist_matlab_4by4_save(np.reshape(r,(-1,128,128,1)),self.path + '/E_result/normal_{}'.format(str(epoch).zfill(3)))
+            
             r = self.sess.run([self.re_image],feed_dict={self.u : self.data.test_anomalous_data[0:16],self.isTrain : False})        
-            mnist_4by4_save(np.reshape(r,(-1,128,128,1)),self.path + '/E_result//anomlous_{}.png'.format(str(epoch).zfill(3)))
+            mnist_4by4_save(np.reshape(r,(-1,128,128,1)),self.path + '/E_result//anomlous_{}'.format(str(epoch).zfill(3)))
+            mnist_matlab_4by4_save(np.reshape(r,(-1,128,128,1)),self.path + '/E_result//anomlous_{}'.format(str(epoch).zfill(3)))
             
             
             print("E_e : %.6f"%(np.mean(E_error)))
@@ -272,8 +277,8 @@ class BE_resGANs_for_OES :
 
             for i in range(self.batch_size) :
 
-                feature_e = np.mean(np.sqrt((np.reshape(im_enc[0][i],(-1,100))-np.reshape(im_re_enc[0][i],(-1,100)))**2))
-                feature_cos = 1 - cosine_similarity(np.reshape(im_enc[0][i],(-1,100)),np.reshape(im_re_enc[0][i],(-1,100)))
+                feature_e = np.mean(np.sqrt((np.reshape(im_enc[0][i],(-1,self.feature_size))-np.reshape(im_re_enc[0][i],(-1,self.feature_size)))**2))
+                feature_cos = 1 - cosine_similarity(np.reshape(im_enc[0][i],(-1,self.feature_size)),np.reshape(im_re_enc[0][i],(-1,self.feature_size)))
                 sign_e = np.mean(np.abs(np.sign(im_enc)-np.sign(im_re_enc)))
                 residual_e = np.mean(np.sqrt((np.reshape(u_[i],(1,128*128))-np.reshape(im_re[i],(1,128*128)))**2))
                 residual_cos = 1 - cosine_similarity(np.reshape(u_[i],(1,128*128)),np.reshape(im_re[i],(1,128*128)))
@@ -294,8 +299,8 @@ class BE_resGANs_for_OES :
 
             for i in range(self.batch_size) :
 
-                feature_e = np.mean(np.sqrt((np.reshape(im_enc[0][i],(-1,100))-np.reshape(im_re_enc[0][i],(-1,100)))**2))
-                feature_cos = 1 - cosine_similarity(np.reshape(im_enc[0][i],(-1,100)),np.reshape(im_re_enc[0][i],(-1,100)))
+                feature_e = np.mean(np.sqrt((np.reshape(im_enc[0][i],(-1,self.feature_size))-np.reshape(im_re_enc[0][i],(-1,self.feature_size)))**2))
+                feature_cos = 1 - cosine_similarity(np.reshape(im_enc[0][i],(-1,self.feature_size)),np.reshape(im_re_enc[0][i],(-1,self.feature_size)))
                 sign_e = np.mean(np.abs(np.sign(im_enc)-np.sign(im_re_enc)))
                 residual_e = np.mean(np.sqrt((np.reshape(u_[i],(1,128*128))-np.reshape(im_re[i],(1,128*128)))**2))
                 residual_cos = 1 - cosine_similarity(np.reshape(u_[i],(1,128*128)),np.reshape(im_re[i],(1,128*128)))
@@ -316,8 +321,8 @@ class BE_resGANs_for_OES :
 
             for i in range(self.batch_size) :
 
-                feature_e = np.mean(np.sqrt((np.reshape(im_enc[0][i],(-1,100))-np.reshape(im_re_enc[0][i],(-1,100)))**2))
-                feature_cos = 1 - cosine_similarity(np.reshape(im_enc[0][i],(-1,100)),np.reshape(im_re_enc[0][i],(-1,100)))
+                feature_e = np.mean(np.sqrt((np.reshape(im_enc[0][i],(-1,self.feature_size))-np.reshape(im_re_enc[0][i],(-1,self.feature_size)))**2))
+                feature_cos = 1 - cosine_similarity(np.reshape(im_enc[0][i],(-1,self.feature_size)),np.reshape(im_re_enc[0][i],(-1,self.feature_size)))
                 sign_e = np.mean(np.abs(np.sign(im_enc)-np.sign(im_re_enc)))
                 residual_e = np.mean(np.sqrt((np.reshape(u_[i],(1,128*128))-np.reshape(im_re[i],(1,128*128)))**2))
                 residual_cos = 1 - cosine_similarity(np.reshape(u_[i],(1,128*128)),np.reshape(im_re[i],(1,128*128)))
