@@ -15,7 +15,6 @@
 
 ![실험 결과](figure_3.png)
 ![실험 결과](figure_4.png)
-
 | |Precision|Recall|F1 score|AUC|
 |------|---|---|---|---|
 |Discriminator score|0.9101|0.6719|0.7731|0.82|
