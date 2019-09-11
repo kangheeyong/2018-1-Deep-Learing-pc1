@@ -13,6 +13,7 @@
   - 본 코드의 네트워크 기본 구조는 [anoGANs](https://arxiv.org/pdf/1703.05921) 이용하며, loss 함수와 각각의 네트워크의 구조는 실제 논문 구조에서 수정하였습니다.
   - 네트워크의 목적은 정상으로 정의된 데이터만으로 학습을 한 후, socre 함수를 정의하고 이를 이용하여 정상데이터와 비정상데이터를 구분하는 것이 목적입니다.
   - OES data에 적용된 모델입니다.
+  - [알고리즘 설명](https://github.com/kangheeyong/2018-1-Deep-Learing-pc1/blob/master/2018-2/experiment_anoGANs_2/report.md)
 
 
 
@@ -33,6 +34,9 @@ test{number}.py : main 실행문
 
 - 구현 중 어려웠던 점
   - [Fault Detection Project for MNIST code](https://github.com/kangheeyong/2018-1-Deep-Learing-pc1/tree/master/2018-2/experiment_anoGANs_1)에서 구현한 코드를 가지고 anomaly_{data}.py와 utility.py의 일부분을 수정했기 때문에 큰 어려움은 없었습니다.
+
+
+
 
 - 관련 자료
   - [dirty code](https://github.com/kangheeyong/2018-1-Deep-Learing-pc1/tree/master/2018-2/for_19411)
